@@ -1,0 +1,66 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Suivi commande {{ commande.numero }} — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Suivi de ma commande</h1>
+
+    <div class="carte-suivi">
+      <div class="suivi-numero"><span>{{ commande.numero }}</span></div>
+
+      {% if commande.est_annulee %}
+        <div class="text-center" style="margin:30px 0;">
+          <span class="statut-badge statut-annulee" style="font-size:1rem;padding:10px 22px;">Commande annulée</span>
+        </div>
+      {% else %}
+        <div class="progress-pourcentage">{{ commande.pourcentage }}%</div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:{{ commande.pourcentage }}%;"></div>
+        </div>
+        <div class="progress-etapes">
+          {% for valeur, libelle in etapes %}
+            <div class="progress-etape {% if commande.pourcentage >= 25 and valeur == 'validee' %}fait{% endif %}{% if commande.pourcentage >= 50 and valeur == 'preparation' %}fait{% endif %}{% if commande.pourcentage >= 75 and valeur == 'livraison' %}fait{% endif %}{% if commande.pourcentage >= 100 and valeur == 'terminee' %}fait{% endif %}">
+              <div class="pastille"></div>
+              {{ libelle }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <h4>Détails client</h4>
+          <p>{{ commande.client_nom }}<br>{{ commande.client_telephone }}</p>
+          <p>{% if commande.mode_reception == 'livraison' %}Livraison — {{ commande.client_adresse }}{% else %}Retrait sur place{% endif %}</p>
+        </div>
+        <div>
+          <h4>Paiement</h4>
+          <p>{{ commande.get_mode_paiement_display }}</p>
+          {% if commande.reduction_points > 0 %}<p>Réduction points fidélité : &minus;{{ commande.reduction_points }} FCFA</p>{% endif %}
+          <p><strong>Total : {{ commande.total }} FCFA</strong></p>
+        </div>
+      </div>
+
+      <table class="tableau-simple" style="margin-top:24px;">
+        <thead><tr><th>Produit</th><th>Qté</th><th>Sous-total</th></tr></thead>
+        <tbody>
+          {% for article in commande.articles.all %}
+          <tr><td>{{ article.nom_produit }}</td><td>{{ article.quantite }}</td><td>{{ article.sous_total }} FCFA</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div style="text-align:center;margin-top:26px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{% url 'monapp:accueil' %}" class="btn btn-outline">Retour à l'accueil</a>
+        {% if request.user.is_authenticated and commande.utilisateur_id == request.user.id and commande.est_annulable %}
+          <form method="post" action="{% url 'monapp:commande_annuler' commande.numero %}" data-confirmer="Annuler la commande {{ commande.numero }} ?">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Annuler cette commande</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

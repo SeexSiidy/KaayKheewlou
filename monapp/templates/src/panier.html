@@ -1,0 +1,81 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Mon panier — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Mon panier</h1>
+
+    {% if panier.est_vide %}
+      <div class="panier-vide">
+        <div class="icone">🛒</div>
+        <p>Votre panier est vide pour le moment.</p>
+        <a href="{% url 'monapp:accueil' %}" class="btn btn-primary">Découvrir nos produits</a>
+      </div>
+    {% else %}
+      <table class="tableau-panier">
+        <thead>
+          <tr><th>Produit</th><th>Prix unitaire</th><th>Quantité</th><th>Sous-total</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for item in panier %}
+          <tr>
+            <td>
+              <div class="produit-ligne">
+                {% if item.produit.image %}<img src="{{ item.produit.image.url }}" alt="{{ item.produit.nom }}">{% endif %}
+                <a href="{{ item.produit.get_absolute_url }}">{{ item.produit.nom }}</a>
+              </div>
+            </td>
+            <td>{{ item.prix_unitaire }} FCFA</td>
+            <td>
+              <form method="post" action="{% url 'monapp:panier_maj' item.produit.id %}" class="qte-form">
+                {% csrf_token %}
+                <input type="number" name="quantite" value="{{ item.quantite }}" min="1">
+              </form>
+            </td>
+            <td><strong>{{ item.sous_total }} FCFA</strong></td>
+            <td>
+              <form method="post" action="{% url 'monapp:panier_retirer' item.produit.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline btn-sm">Retirer</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="recap-panier">
+        <div>Total du panier</div>
+        <div class="total">{{ panier.get_total }} FCFA</div>
+        <a href="{% url 'monapp:commande' %}" class="btn btn-primary">Valider le panier &rarr;</a>
+      </div>
+    {% endif %}
+
+    {% if autres_produits %}
+    <div style="margin-top:60px;">
+      <h2 class="section-title" style="font-size:1.5rem;">Complétez votre commande</h2>
+      <div class="grille-produits">
+        {% for p in autres_produits %}
+          <div class="carte-produit">
+            <a href="{{ p.get_absolute_url }}" class="image-wrap">
+              {% if p.image %}<img src="{{ p.image.url }}" alt="{{ p.nom }}">{% else %}<span class="image-placeholder">🍲</span>{% endif %}
+            </a>
+            <div class="corps">
+              <h3><a href="{{ p.get_absolute_url }}">{{ p.nom }}</a></h3>
+              <span class="prix">{{ p.prix_promo }} FCFA</span>
+              <form method="post" action="{% url 'monapp:panier_ajouter' p.id %}" class="ajout-panier">
+                {% csrf_token %}
+                <input type="hidden" name="quantite" value="1">
+                <input type="hidden" name="suivant" value="{% url 'monapp:panier' %}">
+                <button type="submit" class="btn btn-primary btn-sm btn-block">Ajouter</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

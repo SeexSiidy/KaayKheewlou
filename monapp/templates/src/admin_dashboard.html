@@ -1,0 +1,135 @@
+{% extends "src/base_admin.html" %}
+{% block titre %}Tableau de bord — Kaay Kheewlou{% endblock %}
+{% block titre_page %}Tableau de bord{% endblock %}
+
+{% block contenu %}
+<div class="kpi-grille">
+  <div class="kpi-carte kpi-accent">
+    <div class="valeur">{{ chiffre_affaires }} FCFA</div>
+    <div class="label">Chiffre d'affaires (livrées + terminées)</div>
+  </div>
+  <div class="kpi-carte">
+    <div class="valeur">{{ ca_du_jour }} FCFA</div>
+    <div class="label">Chiffre d'affaires aujourd'hui ({{ commandes_du_jour }} commande{{ commandes_du_jour|pluralize }})</div>
+  </div>
+  <div class="kpi-carte">
+    <div class="valeur">{{ panier_moyen }} FCFA</div>
+    <div class="label">Panier moyen</div>
+  </div>
+  <div class="kpi-carte">
+    <div class="valeur">{{ nb_commandes_en_cours }}</div>
+    <div class="label">Commandes en cours</div>
+  </div>
+</div>
+
+<div class="kpi-grille">
+  <div class="kpi-carte">
+    <div class="valeur">{{ nb_commandes }}</div>
+    <div class="label">Commandes au total ({{ nb_commandes_annulees }} annulée{{ nb_commandes_annulees|pluralize }})</div>
+  </div>
+  <div class="kpi-carte">
+    <div class="valeur">{{ nb_produits }}</div>
+    <div class="label">Produits au catalogue</div>
+  </div>
+  <div class="kpi-carte {% if nb_rupture %}kpi-alerte{% endif %}">
+    <div class="valeur">{{ valeur_stock }} FCFA</div>
+    <div class="label">Valeur totale du stock ({{ nb_rupture }} rupture{{ nb_rupture|pluralize }}, {{ nb_stock_faible }} faible{{ nb_stock_faible|pluralize }})</div>
+  </div>
+  <div class="kpi-carte">
+    <div class="valeur">{{ nb_clients }}</div>
+    <div class="label">Comptes clients inscrits</div>
+  </div>
+</div>
+
+<div class="panneau">
+  <h3>Chiffre d'affaires des 7 derniers jours</h3>
+  <div class="mini-graphe">
+    {% for entree in ventes_semaine %}
+      <div class="mini-graphe-barre-wrap">
+        <div class="mini-graphe-valeur">{{ entree.total }}</div>
+        <div class="mini-graphe-barre" style="height:{{ entree.pourcentage }}%;"></div>
+        <div class="mini-graphe-jour">{{ entree.jour|date:"D d/m" }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="grille-2">
+  <div class="panneau">
+    <h3>Répartition des commandes par statut</h3>
+    <ul class="top-liste">
+      {% for s in stats_statuts %}
+        <li><span class="statut-badge statut-{{ s.cle }}">{{ s.libelle }}</span><strong>{{ s.total }}</strong></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="panneau">
+    <h3>Produits les plus commandés</h3>
+    {% if top_produits %}
+    <ul class="top-liste">
+      {% for p in top_produits %}
+        <li><span><span class="rang">{{ forloop.counter }}</span>{{ p.nom_produit }}</span><strong>{{ p.quantite_totale }} vendus</strong></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="vide-etat">Pas encore de ventes enregistrées.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grille-2">
+  <div class="panneau">
+    <h3>Alertes de stock (pour l'inventaire)</h3>
+    {% if produits_rupture or produits_stock_faible %}
+      <ul class="top-liste">
+        {% for p in produits_rupture %}
+          <li><span>{{ p.nom }}</span><span class="badge-rupture">Rupture de stock</span></li>
+        {% endfor %}
+        {% for p in produits_stock_faible %}
+          <li><span>{{ p.nom }}</span><span class="badge-stock-faible">{{ p.stock }} restant(s)</span></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="vide-etat">Tous les stocks sont à un niveau correct.</p>
+    {% endif %}
+  </div>
+
+  <div class="panneau">
+    <h3>🏆 Meilleurs clients (points de fidélité)</h3>
+    {% if meilleurs_clients %}
+    <ul class="top-liste">
+      {% for client in meilleurs_clients %}
+        <li>
+          <span><span class="rang">{{ forloop.counter }}</span>{{ client.user.first_name|default:client.user.username }}</span>
+          <strong>{{ client.points }} pts</strong>
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="vide-etat">Aucun point de fidélité crédité pour le moment.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panneau">
+  <h3>Dernières commandes</h3>
+  {% if dernieres_commandes %}
+    <table class="tableau-admin">
+      <thead><tr><th>Numéro</th><th>Client</th><th>Total</th><th>Statut</th></tr></thead>
+      <tbody>
+        {% for c in dernieres_commandes %}
+        <tr>
+          <td><a href="{% url 'monapp:admin_commande_detail' c.pk %}">{{ c.numero }}</a></td>
+          <td>{{ c.client_nom }}</td>
+          <td>{{ c.total }} FCFA</td>
+          <td><span class="statut-badge statut-{{ c.statut }}">{{ c.get_statut_display }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="vide-etat">Aucune commande pour le moment.</p>
+  {% endif %}
+</div>
+{% endblock %}

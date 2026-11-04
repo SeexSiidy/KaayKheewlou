@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titre %}Kaay Kheewlou{% endblock %}</title>
+  <link rel="icon" href="{% static 'ressources/logo.png' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container">
+      <a href="{% url 'monapp:accueil' %}" class="navbar-brand">
+        <img src="{% static 'ressources/logo.png' %}" alt="Logo Kaay Kheewlou">
+        <span>Kaay Kheewlou<small>Le goût du terroir, transformé avec passion</small></span>
+      </a>
+
+      {% if user.is_authenticated and not user.is_staff %}
+        <span class="navbar-salutation">Bonjour, {{ user.first_name|default:user.username }}</span>
+      {% endif %}
+
+      <button class="navbar-toggle" aria-label="Menu">&#9776;</button>
+      <nav class="navbar-links">
+        <a href="{% url 'monapp:accueil' %}" class="{% if request.resolver_match.url_name == 'accueil' %}active{% endif %}">Accueil</a>
+        <a href="{% url 'monapp:commande' %}" class="{% if request.resolver_match.url_name == 'commande' %}active{% endif %}">Commander</a>
+        <a href="{% url 'monapp:suivre_commande' %}" class="{% if request.resolver_match.url_name == 'suivre_commande' or request.resolver_match.url_name == 'suivi_commande' %}active{% endif %}">Suivre commande</a>
+        <a href="{% url 'monapp:panier' %}" class="cart-link {% if request.resolver_match.url_name == 'panier' %}active{% endif %}">
+          Panier
+          <span class="badge-count" data-panier-badge>{{ panier_nb_articles }}</span>
+        </a>
+        {% if user.is_authenticated and not user.is_staff %}
+          <a href="{% url 'monapp:compte' %}" class="{% if request.resolver_match.url_name == 'compte' %}active{% endif %}">Mon compte</a>
+        {% else %}
+          <a href="{% url 'monapp:compte_connexion' %}" class="{% if 'compte' in request.resolver_match.url_name %}active{% endif %}">Connexion</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div id="toast-panier" class="toast-panier" hidden></div>
+
+  <main>
+    {% block contenu %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div>
+        <div class="footer-brand">
+          <img src="{% static 'ressources/logo.png' %}" alt="Logo Kaay Kheewlou">
+          <strong>Kaay Kheewlou</strong>
+        </div>
+        <p>Kaay Kheewlou est une entreprise sénégalaise de transformation agroalimentaire. Nous valorisons les produits locaux à travers des plats, jus, céréales et condiments préparés avec soin, pour votre table comme pour votre commerce.</p>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/kaay_kheewlou" target="_blank" rel="noopener" aria-label="Instagram">IG</a>
+          <a href="https://x.com/kaaykheewlou" target="_blank" rel="noopener" aria-label="X / Twitter">X</a>
+        </div>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <p><a href="{% url 'monapp:accueil' %}">Accueil</a></p>
+        <p><a href="{% url 'monapp:commande' %}">Passer une commande</a></p>
+        <p><a href="{% url 'monapp:panier' %}">Mon panier</a></p>
+        <p><a href="{% url 'monapp:suivre_commande' %}">Suivre une commande</a></p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>Dakar, Sénégal</p>
+        <p>Retrait sur place ou livraison à domicile</p>
+        <p>Paiement : Wave, Orange Money, carte, liquide</p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; {% now "Y" %} Kaay Kheewlou — Tous droits réservés.</div>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

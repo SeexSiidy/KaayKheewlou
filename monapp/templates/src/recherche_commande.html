@@ -1,0 +1,33 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Retrouver ma commande — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Retrouver ma commande</h1>
+    <p class="section-subtitle">Saisissez le numéro de commande et le téléphone utilisé</p>
+
+    <div class="carte-form">
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="{{ form.numero.id_for_label }}">{{ form.numero.label }}</label>
+          {{ form.numero }}
+        </div>
+        <div class="champ">
+          <label for="{{ form.client_telephone.id_for_label }}">{{ form.client_telephone.label }}</label>
+          {{ form.client_telephone }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
+      </form>
+
+      {% if commande %}
+        <div style="margin-top:24px;text-align:center;">
+          <p>Commande trouvée !</p>
+          <a href="{% url 'monapp:suivi_commande' commande.numero %}" class="btn btn-dark">Voir le suivi de {{ commande.numero }}</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

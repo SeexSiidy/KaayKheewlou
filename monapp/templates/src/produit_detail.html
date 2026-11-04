@@ -1,0 +1,73 @@
+{% extends "src/base_client.html" %}
+{% block titre %}{{ produit.nom }} — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <p class="fil-ariane"><a href="{% url 'monapp:accueil' %}">Accueil</a> / {% if produit.categorie %}{{ produit.categorie.nom }} / {% endif %}{{ produit.nom }}</p>
+
+    <div class="detail-produit">
+      <div class="image-wrap">
+        {% if produit.image %}
+          <img src="{{ produit.image.url }}" alt="{{ produit.nom }}">
+        {% else %}
+          <span class="image-placeholder" style="font-size:4rem;">🍲</span>
+        {% endif %}
+      </div>
+
+      <div>
+        {% if produit.categorie %}<span class="categorie-tag">{{ produit.categorie.nom }}</span>{% endif %}
+        <h1>{{ produit.nom }}</h1>
+        <div class="prix-ligne">
+          <span class="prix" style="font-size:1.5rem;">{{ produit.prix_promo }} FCFA</span>
+          {% if produit.en_promo %}<span class="prix-barre">{{ produit.prix }} FCFA</span><span class="badge-promo" style="position:static;">-{{ produit.promo_pourcentage }}%</span>{% endif %}
+        </div>
+        <p>{{ produit.description }}</p>
+
+        {% if produit.en_rupture %}
+          <p class="message error" style="display:inline-block;">Ce produit est actuellement en rupture de stock.</p>
+        {% else %}
+          <form method="post" action="{% url 'monapp:panier_ajouter' produit.id %}" class="ajout-panier">
+            {% csrf_token %}
+            <input type="hidden" name="suivant" value="{{ produit.get_absolute_url }}">
+            <div class="qte-selector">
+              <label for="qte">Quantité</label>
+              <button type="button" class="btn btn-outline btn-sm" data-qte-moins="#qte">-</button>
+              <input type="number" id="qte" name="quantite" value="1" min="1">
+              <button type="button" class="btn btn-outline btn-sm" data-qte-plus="#qte">+</button>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+            <a href="{% url 'monapp:commande' %}" class="btn btn-dark">Commander maintenant</a>
+          </form>
+        {% endif %}
+
+        {% if produit.composition %}
+        <div class="bloc-composition">
+          <h4>Composition &amp; informations</h4>
+          <p class="mb-0">{{ produit.composition }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if suggestions %}
+    <div style="margin-top:60px;">
+      <h2 class="section-title" style="font-size:1.5rem;">Vous pourriez aussi aimer</h2>
+      <div class="grille-produits">
+        {% for s in suggestions %}
+          <div class="carte-produit">
+            <a href="{{ s.get_absolute_url }}" class="image-wrap">
+              {% if s.image %}<img src="{{ s.image.url }}" alt="{{ s.nom }}">{% else %}<span class="image-placeholder">🍲</span>{% endif %}
+            </a>
+            <div class="corps">
+              <h3><a href="{{ s.get_absolute_url }}">{{ s.nom }}</a></h3>
+              <span class="prix">{{ s.prix_promo }} FCFA</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

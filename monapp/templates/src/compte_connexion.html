@@ -1,0 +1,29 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Connexion — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Connexion</h1>
+    <p class="section-subtitle">Accédez à votre compte Kaay Kheewlou</p>
+
+    <div class="carte-form">
+      {% for e in form.non_field_errors %}<div class="message error">{{ e }}</div>{% endfor %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="{{ form.username.id_for_label }}">Identifiant</label>
+          {{ form.username }}
+        </div>
+        <div class="champ">
+          <label for="{{ form.password.id_for_label }}">Mot de passe</label>
+          {{ form.password }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+      </form>
+      <p class="lien-secondaire"><a href="{% url 'monapp:compte_mdp_oublie' %}">Mot de passe oublié ?</a></p>
+      <p class="lien-secondaire">Pas encore de compte ? <a href="{% url 'monapp:compte_inscription' %}">Créer un compte</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

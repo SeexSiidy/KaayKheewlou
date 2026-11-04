@@ -1,0 +1,15 @@
+{% extends "src/base_admin.html" %}
+{% block titre %}Confirmer la suppression{% endblock %}
+{% block titre_page %}Confirmer la suppression{% endblock %}
+
+{% block contenu %}
+<div class="panneau" style="max-width:500px;">
+  <h3>Supprimer {{ type_objet }} ?</h3>
+  <p>Êtes-vous sûr de vouloir supprimer <strong>{{ objet }}</strong> ? Cette action est irréversible.</p>
+  <form method="post" style="display:flex;gap:10px;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+    <a href="javascript:history.back()" class="btn btn-outline">Annuler</a>
+  </form>
+</div>
+{% endblock %}

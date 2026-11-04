@@ -1,0 +1,30 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Mot de passe oublié — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Mot de passe oublié</h1>
+    <p class="section-subtitle">Vérifiez votre identité avec votre identifiant et votre téléphone</p>
+
+    <div class="carte-form">
+      {% for e in form.non_field_errors %}<div class="message error">{{ e }}</div>{% endfor %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+          {{ form.username }}
+        </div>
+        <div class="champ">
+          <label for="{{ form.telephone.id_for_label }}">{{ form.telephone.label }}</label>
+          {{ form.telephone }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Vérifier mon identité</button>
+      </form>
+      <p style="text-align:center;margin-top:14px;">
+        <a href="{% url 'monapp:compte_connexion' %}">&larr; Retour à la connexion</a>
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

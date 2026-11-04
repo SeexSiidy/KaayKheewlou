@@ -1,0 +1,33 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Mes commandes — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Mes commandes</h1>
+    <p class="section-subtitle">Historique des commandes passées depuis cet appareil</p>
+
+    {% if commandes %}
+    <table class="tableau-simple">
+      <thead><tr><th>Numéro</th><th>Date</th><th>Total</th><th>Statut</th><th></th></tr></thead>
+      <tbody>
+        {% for commande in commandes %}
+        <tr>
+          <td>{{ commande.numero }}</td>
+          <td>{{ commande.date_creation|date:"d/m/Y H:i" }}</td>
+          <td>{{ commande.total }} FCFA</td>
+          <td><span class="statut-badge statut-{{ commande.statut }}">{{ commande.get_statut_display }}</span></td>
+          <td><a href="{% url 'monapp:suivi_commande' commande.numero %}" class="btn btn-outline btn-sm">Suivre</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="vide-etat">
+        Aucune commande enregistrée sur cet appareil pour le moment.<br><br>
+        <a href="{% url 'monapp:recherche_commande' %}">Retrouver une commande avec son numéro</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

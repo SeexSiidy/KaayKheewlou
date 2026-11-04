@@ -1,0 +1,98 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Mon compte — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Mon compte</h1>
+    <p class="section-subtitle">Bienvenue, {{ request.user.first_name|default:request.user.username }}</p>
+
+    <div class="carte-points">
+      <div>
+        <div class="valeur">{{ profil.points|default:0 }} points</div>
+        <div>Valeur : {{ profil.valeur_points_fcfa|default:0 }} FCFA de réduction disponible</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:1.3rem;font-weight:800;">{{ nb_commandes }} commande{{ nb_commandes|pluralize }}</div>
+        <div>{{ total_depense }} FCFA dépensés au total</div>
+      </div>
+    </div>
+
+    <div class="grille-2">
+      <div class="carte-form" style="margin:0;">
+        <h3 style="margin-top:0;color:#402035;">Mes informations</h3>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="profil">
+          <div class="champ">
+            <label for="{{ profil_form.nom.id_for_label }}">Nom complet</label>
+            {{ profil_form.nom }}
+          </div>
+          <div class="champ">
+            <label for="{{ profil_form.telephone.id_for_label }}">Téléphone</label>
+            {{ profil_form.telephone }}
+            {% for e in profil_form.telephone.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="{{ profil_form.email.id_for_label }}">Email</label>
+            {{ profil_form.email }}
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Enregistrer mes informations</button>
+        </form>
+      </div>
+
+      <div class="carte-form" style="margin:0;">
+        <h3 style="margin-top:0;color:#402035;">Changer mon mot de passe</h3>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="mot_de_passe">
+          <div class="champ">
+            <label for="{{ mdp_form.ancien_mot_de_passe.id_for_label }}">{{ mdp_form.ancien_mot_de_passe.label }}</label>
+            {{ mdp_form.ancien_mot_de_passe }}
+            {% for e in mdp_form.ancien_mot_de_passe.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="{{ mdp_form.password1.id_for_label }}">{{ mdp_form.password1.label }}</label>
+            {{ mdp_form.password1 }}
+            {% for e in mdp_form.password1.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="{{ mdp_form.password2.id_for_label }}">{{ mdp_form.password2.label }}</label>
+            {{ mdp_form.password2 }}
+            {% for e in mdp_form.password2.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+          </div>
+          <button type="submit" class="btn btn-dark btn-block">Changer le mot de passe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="panneau" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 12px rgba(64,32,53,.08);margin-top:24px;">
+      <h3 style="margin-top:0;color:#402035;">Mes dernières commandes</h3>
+      {% if dernieres_commandes %}
+        {% for commande in dernieres_commandes %}
+        <div class="commande-carte">
+          <div class="infos">
+            <strong>{{ commande.numero }}</strong>
+            <span>{{ commande.date_creation|date:"d/m/Y H:i" }} — {{ commande.total }} FCFA</span>
+          </div>
+          <span class="statut-badge statut-{{ commande.statut }}">{{ commande.get_statut_display }}</span>
+          <div class="actions">
+            <a href="{% url 'monapp:suivi_commande' commande.numero %}" class="btn btn-outline btn-sm">Voir</a>
+          </div>
+        </div>
+        {% endfor %}
+        <p style="text-align:right;margin-bottom:0;"><a href="{% url 'monapp:suivre_commande' %}">Voir toutes mes commandes &rarr;</a></p>
+      {% else %}
+        <p class="vide-etat">Vous n'avez pas encore passé de commande.</p>
+      {% endif %}
+    </div>
+
+    <div class="text-center" style="margin-top:24px;">
+      <form method="post" action="{% url 'monapp:compte_deconnexion' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline">Se déconnecter</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "src/base_client.html" %}
+{% load static %}
+{% block titre %}Kaay Kheewlou — Accueil{% endblock %}
+
+{% block contenu %}
+
+<section class="hero">
+  <div class="hero-content">
+    <img src="{% static 'ressources/logo.png' %}" alt="Kaay Kheewlou" class="hero-logo">
+    <div class="hero-stars">&#9733; &#9733; &#9733;</div>
+    <h1>Kaay Kheewlou</h1>
+    <p class="slogan">Le goût du terroir, transformé avec passion</p>
+    <p>Des produits agroalimentaires sénégalais authentiques, préparés avec soin à partir d'ingrédients locaux. Commandez en quelques clics et faites-vous livrer, ou récupérez sur place.</p>
+    <div class="hero-actions">
+      <a href="#produits" class="btn btn-primary">Voir nos produits</a>
+      <a href="{% url 'monapp:commande' %}" class="btn btn-outline-light">Passer une commande</a>
+    </div>
+    <div class="hero-atouts">
+      <span class="hero-atout"><span class="icone">🌾</span> 100% ingrédients locaux</span>
+      <span class="hero-atout"><span class="icone">🚚</span> Livraison à Dakar</span>
+      <span class="hero-atout"><span class="icone">✅</span> Qualité artisanale garantie</span>
+      <span class="hero-atout"><span class="icone">🎁</span> Points fidélité à chaque achat</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="produits">
+  <div class="container">
+    <h2 class="section-title">Notre catalogue</h2>
+    <p class="section-subtitle">Recherchez un produit ou filtrez par catégorie</p>
+
+    <form method="get" class="filtres">
+      <input type="text" name="q" value="{{ q }}" placeholder="Rechercher un produit...">
+      <select name="categorie" onchange="this.form.submit()">
+        <option value="">Toutes les catégories</option>
+        {% for cat in categories %}
+          <option value="{{ cat.slug }}" {% if cat.slug == categorie_slug %}selected{% endif %}>{{ cat.nom }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-dark btn-sm">Rechercher</button>
+      {% if q or categorie_slug %}
+        <a href="{% url 'monapp:accueil' %}" class="btn btn-outline btn-sm">Réinitialiser</a>
+      {% endif %}
+    </form>
+
+    {% if produits %}
+      <div class="grille-produits">
+        {% for produit in produits %}
+          <div class="carte-produit">
+            {% if produit.en_promo %}<span class="badge-promo">-{{ produit.promo_pourcentage }}%</span>{% endif %}
+            {% if produit.en_rupture %}<span class="badge-stock">Rupture</span>{% endif %}
+            <a href="{{ produit.get_absolute_url }}" class="image-wrap">
+              {% if produit.image %}
+                <img src="{{ produit.image.url }}" alt="{{ produit.nom }}">
+              {% else %}
+                <span class="image-placeholder">🍲</span>
+              {% endif %}
+            </a>
+            <div class="corps">
+              {% if produit.categorie %}<span class="categorie-tag">{{ produit.categorie.nom }}</span>{% endif %}
+              <h3><a href="{{ produit.get_absolute_url }}">{{ produit.nom }}</a></h3>
+              <p class="desc">{{ produit.description|truncatewords:14 }}</p>
+              <div class="prix-ligne">
+                <span class="prix">{{ produit.prix_promo }} FCFA</span>
+                {% if produit.en_promo %}<span class="prix-barre">{{ produit.prix }} FCFA</span>{% endif %}
+              </div>
+              <div class="carte-actions">
+                <a href="{{ produit.get_absolute_url }}" class="btn btn-outline btn-sm">Détails</a>
+                {% if not produit.en_rupture %}
+                <form method="post" action="{% url 'monapp:panier_ajouter' produit.id %}" class="ajout-panier">
+                  {% csrf_token %}
+                  <input type="hidden" name="quantite" value="1">
+                  <input type="hidden" name="suivant" value="{{ request.path }}">
+                  <button type="submit" class="btn btn-primary btn-sm btn-block">Ajouter</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="vide-etat">Aucun produit ne correspond à votre recherche pour le moment.</div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container text-center">
+    <h2 class="section-title">Une entreprise fière de son terroir</h2>
+    <p class="section-subtitle" style="max-width:700px;margin-left:auto;margin-right:auto;">
+      Kaay Kheewlou transforme des matières premières locales — mil, bissap, baobab, arachides et bien d'autres —
+      en produits prêts à consommer, sains et savoureux. Chaque produit est préparé avec des ingrédients
+      soigneusement sélectionnés, sans compromis sur la qualité.
+    </p>
+  </div>
+</section>
+
+{% endblock %}

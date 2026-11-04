@@ -1,0 +1,69 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Suivre commande — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Suivre ma commande</h1>
+
+    {% if connecte %}
+      <p class="section-subtitle">Voici l'ensemble de vos commandes, connecté en tant que {{ request.user.first_name|default:request.user.username }}</p>
+
+      {% if commandes %}
+        {% for commande in commandes %}
+        <div class="commande-carte">
+          <div class="infos">
+            <strong>{{ commande.numero }}</strong>
+            <span>{{ commande.date_creation|date:"d/m/Y H:i" }} — {{ commande.total }} FCFA</span>
+          </div>
+          <span class="statut-badge statut-{{ commande.statut }}">{{ commande.get_statut_display }}</span>
+          <div class="actions">
+            <a href="{% url 'monapp:suivi_commande' commande.numero %}" class="btn btn-outline btn-sm">Voir le détail</a>
+            {% if commande.est_annulable %}
+              <form method="post" action="{% url 'monapp:commande_annuler' commande.numero %}" data-confirmer="Annuler la commande {{ commande.numero }} ?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="vide-etat">
+          Vous n'avez pas encore passé de commande.<br><br>
+          <a href="{% url 'monapp:accueil' %}" class="btn btn-primary">Découvrir nos produits</a>
+        </div>
+      {% endif %}
+
+    {% else %}
+      <p class="section-subtitle">Saisissez le numéro de commande et le téléphone utilisé — ou connectez-vous à votre compte pour retrouver vos commandes automatiquement</p>
+
+      <div class="carte-form">
+        <form method="post">
+          {% csrf_token %}
+          <div class="champ">
+            <label for="{{ form.numero.id_for_label }}">{{ form.numero.label }}</label>
+            {{ form.numero }}
+          </div>
+          <div class="champ">
+            <label for="{{ form.client_telephone.id_for_label }}">{{ form.client_telephone.label }}</label>
+            {{ form.client_telephone }}
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
+        </form>
+
+        {% if commande %}
+          <div style="margin-top:24px;text-align:center;">
+            <p>Commande trouvée !</p>
+            <a href="{% url 'monapp:suivi_commande' commande.numero %}" class="btn btn-dark">Voir le suivi de {{ commande.numero }}</a>
+          </div>
+        {% endif %}
+
+        <p class="lien-secondaire">
+          <a href="{% url 'monapp:compte_connexion' %}">Se connecter</a> pour retrouver toutes vos commandes automatiquement
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

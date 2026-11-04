@@ -1,0 +1,66 @@
+{% extends "src/base_admin.html" %}
+{% block titre %}{% if produit %}Modifier{% else %}Ajouter{% endif %} un produit — Kaay Kheewlou{% endblock %}
+{% block titre_page %}{% if produit %}Modifier le produit{% else %}Ajouter un produit{% endif %}{% endblock %}
+
+{% block contenu %}
+<div class="panneau" style="max-width:760px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grille">
+      <div class="champ">
+        <label for="{{ form.nom.id_for_label }}">Nom du produit</label>
+        {{ form.nom }}
+        {% for e in form.nom.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="champ">
+        <label for="{{ form.categorie.id_for_label }}">Catégorie</label>
+        {{ form.categorie }}
+      </div>
+    </div>
+
+    <div class="champ">
+      <label for="{{ form.description.id_for_label }}">Description</label>
+      {{ form.description }}
+    </div>
+    <div class="champ">
+      <label for="{{ form.composition.id_for_label }}">Composition / allergènes</label>
+      {{ form.composition }}
+    </div>
+
+    <div class="form-grille">
+      <div class="champ">
+        <label for="{{ form.prix.id_for_label }}">Prix (FCFA)</label>
+        {{ form.prix }}
+      </div>
+      <div class="champ">
+        <label for="{{ form.stock.id_for_label }}">Stock disponible</label>
+        {{ form.stock }}
+      </div>
+    </div>
+
+    <div class="champ">
+      <label for="{{ form.image.id_for_label }}">Image du produit</label>
+      {{ form.image }}
+      {% if produit and produit.image %}
+        <img data-apercu-image src="{{ produit.image.url }}" style="max-width:140px;border-radius:10px;margin-top:10px;">
+      {% else %}
+        <img data-apercu-image style="max-width:140px;border-radius:10px;margin-top:10px;display:none;">
+      {% endif %}
+    </div>
+
+    <div class="champ champ-check">
+      {{ form.actif }} <label for="{{ form.actif.id_for_label }}" style="margin:0;">Produit visible côté client</label>
+    </div>
+    <div class="champ champ-check">
+      {{ form.en_promo }} <label for="{{ form.en_promo.id_for_label }}" style="margin:0;">Mettre ce produit en promotion</label>
+    </div>
+    <div class="champ" data-champ-promo>
+      <label for="{{ form.promo_pourcentage.id_for_label }}">Pourcentage de réduction</label>
+      {{ form.promo_pourcentage }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a href="{% url 'monapp:admin_produits' %}" class="btn btn-outline">Annuler</a>
+  </form>
+</div>
+{% endblock %}

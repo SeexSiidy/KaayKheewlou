@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion administrateur — Kaay Kheewlou</title>
+  <link rel="icon" href="{% static 'ressources/logo.png' %}">
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body class="admin-body">
+  <div class="login-wrap">
+    <div class="login-carte">
+      <img src="{% static 'ressources/logo.png' %}" alt="Logo Kaay Kheewlou">
+      <h2>Espace administrateur</h2>
+      <p class="sub">Connectez-vous pour gérer Kaay Kheewlou</p>
+
+      {% if messages %}
+        {% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="{{ form.username.id_for_label }}">Identifiant</label>
+          {{ form.username }}
+        </div>
+        <div class="champ">
+          <label for="{{ form.password.id_for_label }}">Mot de passe</label>
+          {{ form.password }}
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">Se connecter</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

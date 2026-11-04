@@ -1,0 +1,48 @@
+{% extends "src/base_admin.html" %}
+{% block titre %}Mes produits — Kaay Kheewlou{% endblock %}
+{% block titre_page %}Mes produits{% endblock %}
+
+{% block contenu %}
+<div class="panneau">
+  <div class="filtre-bar" style="justify-content:space-between;">
+    <form method="get" style="display:flex;gap:10px;">
+      <input type="text" name="q" value="{{ q }}" placeholder="Rechercher un produit...">
+      <button type="submit" class="btn btn-outline btn-sm">Rechercher</button>
+    </form>
+    <a href="{% url 'monapp:admin_produit_ajouter' %}" class="btn btn-primary">+ Ajouter un produit</a>
+  </div>
+
+  {% if produits %}
+  <table class="tableau-admin">
+    <thead>
+      <tr><th>Produit</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Promo</th><th>Statut</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for p in produits %}
+      <tr>
+        <td>{{ p.nom }}</td>
+        <td>{{ p.categorie.nom|default:"—" }}</td>
+        <td>{{ p.prix }} FCFA</td>
+        <td>
+          {% if p.en_rupture %}<span class="badge-rupture">Rupture</span>
+          {% elif p.stock_faible %}<span class="badge-stock-faible">{{ p.stock }}</span>
+          {% else %}{{ p.stock }}{% endif %}
+        </td>
+        <td>{% if p.en_promo %}-{{ p.promo_pourcentage }}%{% else %}—{% endif %}</td>
+        <td>{% if p.actif %}<span class="statut-badge statut-terminee">Actif</span>{% else %}<span class="statut-badge statut-validee">Masqué</span>{% endif %}</td>
+        <td style="display:flex;gap:6px;">
+          <a href="{% url 'monapp:admin_produit_modifier' p.pk %}" class="btn btn-outline btn-sm">Modifier</a>
+          <form method="post" action="{% url 'monapp:admin_produit_supprimer' p.pk %}" data-confirmer="Supprimer le produit « {{ p.nom }} » ?">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vide-etat">Aucun produit pour le moment.</p>
+  {% endif %}
+</div>
+{% endblock %}

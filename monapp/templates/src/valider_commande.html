@@ -1,0 +1,89 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Valider ma commande — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Valider ma commande</h1>
+    <p class="section-subtitle">Choisissez votre mode de paiement puis confirmez</p>
+
+    <div class="grille-commande">
+      <div class="panneau" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 12px rgba(64,32,53,.08);">
+        <h3 style="margin-top:0;color:#402035;">Récapitulatif</h3>
+        <table class="tableau-panier">
+          <thead><tr><th>Produit</th><th>Qté</th><th>Sous-total</th></tr></thead>
+          <tbody>
+            {% for item in panier %}
+            <tr>
+              <td>{{ item.produit.nom }}</td>
+              <td>{{ item.quantite }}</td>
+              <td>{{ item.sous_total }} FCFA</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div style="margin-top:20px;">
+          <p><strong>Client :</strong> {{ infos.client_nom }} — {{ infos.client_telephone }}</p>
+          <p><strong>Réception :</strong>
+            {% if infos.mode_reception == 'livraison' %}Livraison à domicile — {{ infos.client_adresse }}{% else %}Retrait sur place{% endif %}
+          </p>
+          {% if infos.note %}<p><strong>Note :</strong> {{ infos.note }}</p>{% endif %}
+        </div>
+        <p><a href="{% url 'monapp:commande' %}">&larr; Modifier mes informations</a></p>
+      </div>
+
+      <div class="carte-recap">
+        <h3>Paiement</h3>
+
+        {% if points_disponibles > 0 %}
+        <div class="champ" style="background:#fff8e6;border-radius:10px;padding:14px 16px;border:2px solid var(--brand-gold);">
+          <p style="margin:0 0 8px;font-size:.88rem;"><span class="badge-points">🎁 {{ points_disponibles }} points</span> disponibles (valeur : {{ reduction_max }} FCFA)</p>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="utiliser-points-toggle" {% if utiliser_points %}checked{% endif %}>
+            Utiliser mes points pour une réduction de {{ reduction_max }} FCFA
+          </label>
+        </div>
+        {% endif %}
+
+        <form method="post" id="form-paiement">
+          {% csrf_token %}
+          <input type="hidden" name="utiliser_points" id="utiliser-points-hidden" value="{% if utiliser_points %}on{% endif %}">
+          <div class="champ">
+            <label>Mode de paiement</label>
+            <div class="radio-group" style="flex-direction:column;">
+              {% for valeur, libelle in paiement_choices %}
+                <label class="radio-carte">
+                  <input type="radio" name="mode_paiement" value="{{ valeur }}" {% if forloop.first %}checked{% endif %}>
+                  {{ libelle }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="ligne-recap"><span>Sous-total</span><span>{{ sous_total }} FCFA</span></div>
+          <div class="ligne-recap"><span>Frais de livraison</span><span>{{ frais_livraison }} FCFA</span></div>
+          {% if reduction_points > 0 %}
+          <div class="ligne-recap"><span>Réduction points fidélité</span><span>&minus;{{ reduction_points }} FCFA</span></div>
+          {% endif %}
+          <div class="ligne-recap total"><span>Total à payer</span><span>{{ total }} FCFA</span></div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;">Confirmer ma commande</button>
+        </form>
+      </div>
+
+      {% if points_disponibles > 0 %}
+      <script>
+        document.getElementById('utiliser-points-toggle').addEventListener('change', function () {
+          document.getElementById('utiliser-points-hidden').value = this.checked ? 'on' : '';
+          var url = new URL(window.location.href);
+          if (this.checked) { url.searchParams.set('utiliser_points', 'on'); }
+          else { url.searchParams.delete('utiliser_points'); }
+          window.location.href = url.toString();
+        });
+      </script>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

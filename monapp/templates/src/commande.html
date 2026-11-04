@@ -1,0 +1,96 @@
+{% extends "src/base_client.html" %}
+{% block titre %}Passer une commande — Kaay Kheewlou{% endblock %}
+
+{% block contenu %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Passer une commande</h1>
+    <p class="section-subtitle">Vérifiez votre panier puis renseignez vos informations</p>
+
+    <div class="grille-commande">
+      <div>
+        <div class="panneau" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 12px rgba(64,32,53,.08);margin-bottom:24px;">
+          <h3 style="margin-top:0;color:#402035;">Contenu de votre panier</h3>
+          <table class="tableau-panier">
+            <thead><tr><th>Produit</th><th>Qté</th><th>Sous-total</th></tr></thead>
+            <tbody>
+              {% for item in panier %}
+              <tr>
+                <td>{{ item.produit.nom }}</td>
+                <td>{{ item.quantite }}</td>
+                <td>{{ item.sous_total }} FCFA</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <p style="text-align:right;margin-bottom:0;"><a href="{% url 'monapp:panier' %}">Modifier le panier</a></p>
+        </div>
+
+        {% if produits_dispo %}
+        <div class="panneau" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 12px rgba(64,32,53,.08);">
+          <h3 style="margin-top:0;color:#402035;">Ajouter un produit disponible</h3>
+          <div class="grille-produits">
+            {% for p in produits_dispo %}
+            <div class="carte-produit">
+              <a href="{{ p.get_absolute_url }}" class="image-wrap">
+                {% if p.image %}<img src="{{ p.image.url }}" alt="{{ p.nom }}">{% else %}<span class="image-placeholder">🍲</span>{% endif %}
+              </a>
+              <div class="corps">
+                <h3>{{ p.nom }}</h3>
+                <span class="prix">{{ p.prix_promo }} FCFA</span>
+                <form method="post" action="{% url 'monapp:panier_ajouter' p.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="quantite" value="1">
+                  <input type="hidden" name="suivant" value="{% url 'monapp:commande' %}">
+                  <button type="submit" class="btn btn-primary btn-sm btn-block">Ajouter</button>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="carte-recap">
+        <h3>Vos informations</h3>
+        <form method="post">
+          {% csrf_token %}
+          <div class="champ">
+            <label for="{{ form.client_nom.id_for_label }}">{{ form.client_nom.label }}</label>
+            {{ form.client_nom }}
+            {% for e in form.client_nom.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="{{ form.client_telephone.id_for_label }}">{{ form.client_telephone.label }}</label>
+            {{ form.client_telephone }}
+            {% for e in form.client_telephone.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="{{ form.client_email.id_for_label }}">{{ form.client_email.label }}</label>
+            {{ form.client_email }}
+          </div>
+          <div class="champ">
+            <label>{{ form.mode_reception.label }}</label>
+            <div class="radio-group">
+              {% for radio in form.mode_reception %}
+                <label class="radio-carte">{{ radio.tag }} {{ radio.choice_label }}</label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="champ" data-bloc-adresse>
+            <label for="{{ form.client_adresse.id_for_label }}">{{ form.client_adresse.label }}</label>
+            {{ form.client_adresse }}
+            {% for e in form.client_adresse.errors %}<div class="erreurs">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="{{ form.note.id_for_label }}">{{ form.note.label }}</label>
+            {{ form.note }}
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Continuer vers la validation &rarr;</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

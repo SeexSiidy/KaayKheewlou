@@ -1,0 +1,48 @@
+{% extends "src/base_admin.html" %}
+{% block titre %}Catégories — Kaay Kheewlou{% endblock %}
+{% block titre_page %}Catégories{% endblock %}
+
+{% block contenu %}
+<div class="grille-2">
+  <div class="panneau">
+    <h3>Catégories existantes</h3>
+    {% if categories %}
+    <table class="tableau-admin">
+      <thead><tr><th>Nom</th><th>Produits</th><th></th></tr></thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td>{{ cat.nom }}</td>
+          <td>{{ cat.nb_produits }}</td>
+          <td>
+            <form method="post" action="{% url 'monapp:admin_categorie_supprimer' cat.pk %}" data-confirmer="Supprimer la catégorie « {{ cat.nom }} » ?">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="vide-etat">Aucune catégorie pour le moment.</p>
+    {% endif %}
+  </div>
+
+  <div class="panneau">
+    <h3>Ajouter une catégorie</h3>
+    <form method="post">
+      {% csrf_token %}
+      <div class="champ">
+        <label for="{{ form.nom.id_for_label }}">Nom</label>
+        {{ form.nom }}
+      </div>
+      <div class="champ">
+        <label for="{{ form.description.id_for_label }}">Description</label>
+        {{ form.description }}
+      </div>
+      <button type="submit" class="btn btn-primary">Ajouter</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

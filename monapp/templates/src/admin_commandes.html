@@ -1,0 +1,39 @@
+{% extends "src/base_admin.html" %}
+{% block titre %}Commandes — Kaay Kheewlou{% endblock %}
+{% block titre_page %}Commandes{% endblock %}
+
+{% block contenu %}
+<div class="panneau">
+  <form method="get" class="filtre-bar">
+    <select name="statut" onchange="this.form.submit()">
+      <option value="">Tous les statuts</option>
+      {% for valeur, libelle in statut_choices %}
+        <option value="{{ valeur }}" {% if valeur == statut %}selected{% endif %}>{{ libelle }}</option>
+      {% endfor %}
+    </select>
+    {% if statut %}<a href="{% url 'monapp:admin_commandes' %}" class="btn btn-outline btn-sm">Réinitialiser</a>{% endif %}
+  </form>
+
+  {% if commandes %}
+  <table class="tableau-admin">
+    <thead><tr><th>Numéro</th><th>Client</th><th>Téléphone</th><th>Total</th><th>Paiement</th><th>Statut</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+      {% for c in commandes %}
+      <tr>
+        <td>{{ c.numero }}</td>
+        <td>{{ c.client_nom }}</td>
+        <td>{{ c.client_telephone }}</td>
+        <td>{{ c.total }} FCFA</td>
+        <td>{{ c.get_mode_paiement_display }}</td>
+        <td><span class="statut-badge statut-{{ c.statut }}">{{ c.get_statut_display }}</span></td>
+        <td>{{ c.date_creation|date:"d/m/Y H:i" }}</td>
+        <td><a href="{% url 'monapp:admin_commande_detail' c.pk %}" class="btn btn-outline btn-sm">Gérer</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vide-etat">Aucune commande pour ce filtre.</p>
+  {% endif %}
+</div>
+{% endblock %}

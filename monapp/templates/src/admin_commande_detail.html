@@ -1,0 +1,61 @@
+{% extends "src/base_admin.html" %}
+{% block titre %}Commande {{ commande.numero }} — Kaay Kheewlou{% endblock %}
+{% block titre_page %}Commande {{ commande.numero }}{% endblock %}
+
+{% block contenu %}
+<div class="grille-2">
+  <div class="panneau">
+    <h3>Informations client</h3>
+    <p><strong>{{ commande.client_nom }}</strong><br>{{ commande.client_telephone }}{% if commande.client_email %} — {{ commande.client_email }}{% endif %}</p>
+    <p>
+      {% if commande.mode_reception == 'livraison' %}
+        Livraison à domicile<br>{{ commande.client_adresse }}
+      {% else %}
+        Retrait sur place
+      {% endif %}
+    </p>
+    <p>Paiement : <strong>{{ commande.get_mode_paiement_display }}</strong></p>
+    {% if commande.utilisateur %}<p>Compte client : <strong>{{ commande.utilisateur.first_name|default:commande.utilisateur.username }}</strong></p>{% endif %}
+    {% if commande.note %}<p>Note : {{ commande.note }}</p>{% endif %}
+    <p style="color:#7a6a73;font-size:.85rem;">Commande passée le {{ commande.date_creation|date:"d/m/Y à H:i" }}</p>
+
+    <h3>Articles commandés</h3>
+    <table class="tableau-admin">
+      <thead><tr><th>Produit</th><th>Prix unitaire</th><th>Qté</th><th>Sous-total</th></tr></thead>
+      <tbody>
+        {% for a in commande.articles.all %}
+        <tr><td>{{ a.nom_produit }}</td><td>{{ a.prix_unitaire }} FCFA</td><td>{{ a.quantite }}</td><td>{{ a.sous_total }} FCFA</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="ligne-recap"><span>Sous-total</span><span>{{ commande.sous_total }} FCFA</span></div>
+    <div class="ligne-recap"><span>Frais de livraison</span><span>{{ commande.frais_livraison }} FCFA</span></div>
+    {% if commande.reduction_points > 0 %}
+    <div class="ligne-recap"><span>Réduction points ({{ commande.points_utilises }} pts)</span><span>&minus;{{ commande.reduction_points }} FCFA</span></div>
+    {% endif %}
+    <div class="ligne-recap total"><span>Total</span><span>{{ commande.total }} FCFA</span></div>
+    {% if commande.points_credites %}<p style="font-size:.82rem;color:#2c6b3f;">✓ {{ commande.points_gagnes }} points fidélité crédités au client</p>{% endif %}
+  </div>
+
+  <div class="panneau">
+    <h3>Statut de la commande</h3>
+    <p>Progression actuelle : <strong>{{ commande.pourcentage }}%</strong></p>
+    <div class="progress-mini" style="width:100%;margin-bottom:20px;"><span style="width:{{ commande.pourcentage }}%;"></span></div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="champ">
+        <label for="statut">Mettre à jour le statut</label>
+        <select name="statut" id="statut">
+          {% for valeur, libelle in statut_choices %}
+            <option value="{{ valeur }}" {% if valeur == commande.statut %}selected{% endif %}>{{ libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Mettre à jour</button>
+    </form>
+
+    <p style="margin-top:20px;"><a href="{% url 'monapp:admin_commandes' %}">&larr; Retour aux commandes</a></p>
+  </div>
+</div>
+{% endblock %}

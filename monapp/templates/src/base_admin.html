@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titre %}Gestion — Kaay Kheewlou{% endblock %}</title>
+  <link rel="icon" href="{% static 'ressources/logo.png' %}">
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body class="admin-body">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="brand">
+        <img src="{% static 'ressources/logo.png' %}" alt="Logo">
+        <div>
+          <strong>Kaay Kheewlou</strong>
+          <span>Espace de gestion</span>
+        </div>
+      </div>
+      <nav class="admin-nav">
+        <a href="{% url 'monapp:admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">📊 Tableau de bord</a>
+        <a href="{% url 'monapp:admin_produits' %}" class="{% if 'produit' in request.resolver_match.url_name %}active{% endif %}">🛒 Mes produits</a>
+        <a href="{% url 'monapp:admin_categories' %}" class="{% if 'categorie' in request.resolver_match.url_name %}active{% endif %}">🏷️ Catégories</a>
+        <a href="{% url 'monapp:admin_commandes' %}" class="{% if 'commande' in request.resolver_match.url_name %}active{% endif %}">📦 Commandes</a>
+      </nav>
+      <div class="sep"></div>
+      <a href="{% url 'monapp:accueil' %}" class="voir-site" target="_blank">&larr; Voir le site</a><br><br>
+      <form method="post" action="{% url 'monapp:admin_logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,.5);color:#fff;">Déconnexion</button>
+      </form>
+    </aside>
+
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <h1>{% block titre_page %}Tableau de bord{% endblock %}</h1>
+        <span>Bonjour, {{ request.user.username }}</span>
+      </div>
+      <div class="admin-content">
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}
+        </div>
+        {% endif %}
+        {% block contenu %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  <script src="{% static 'js/admin.js' %}"></script>
+</body>
+</html>
